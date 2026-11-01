@@ -1,0 +1,139 @@
+from pathlib import Path
+import zipfile, os
+
+base = Path("/mnt/data/profile_thanh_tuyen")
+base.mkdir(exist_ok=True)
+
+html = r'''<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050b12">
+<title>Thanh Tuyền | Profile</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px;color:#f4fbff;
+  font-family:Arial,Helvetica,sans-serif;
+  background:radial-gradient(circle at 20% 15%,#123b49 0,transparent 35%),
+             radial-gradient(circle at 85% 85%,#14234c 0,transparent 38%),#05080e;
+}
+.card{
+  width:min(100%,390px);padding:32px 25px;text-align:center;
+  border:1px solid rgba(0,238,255,.45);border-radius:26px;
+  background:rgba(10,20,31,.78);backdrop-filter:blur(16px);
+  box-shadow:0 0 35px rgba(0,225,255,.16),inset 0 0 25px rgba(0,225,255,.04);
+  animation:show .8s ease both;
+}
+@keyframes show{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.avatar{
+  width:124px;height:124px;border-radius:50%;object-fit:cover;
+  border:3px solid #00eaff;box-shadow:0 0 23px #00bcd4;margin-bottom:18px;
+  background:#152431;
+}
+h1{font-size:29px;letter-spacing:2px;color:#65f5ff;text-shadow:0 0 15px #00bcd4}
+.tagline{color:#a8bac7;margin:10px 0 22px;font-size:14px}
+.line{height:1px;background:linear-gradient(90deg,transparent,#00dff2,transparent);margin:18px 0}
+.details{list-style:none;text-align:left;line-height:2.1;color:#dce9ef;font-size:14px}
+.details strong{color:#62efff;font-weight:600}
+.social{display:flex;gap:12px;justify-content:center;margin:22px 0}
+.social a,.play{
+  border:1px solid #00dff2;border-radius:13px;padding:11px 17px;
+  color:#eaffff;text-decoration:none;background:rgba(0,220,240,.07);
+  transition:.2s;font-weight:600;font-size:14px
+}
+.social a:hover,.play:hover{background:#00dff2;color:#031014;box-shadow:0 0 18px #00dff2}
+.music{margin-top:20px;padding:17px 14px;border-radius:17px;background:rgba(0,220,240,.06);border:1px solid rgba(0,220,240,.2)}
+.music-title{font-size:14px;color:#b8faff;margin-bottom:12px}
+.controls{display:flex;align-items:center;justify-content:center;gap:12px}
+.play{cursor:pointer;min-width:112px}
+#volume{width:95px;accent-color:#00dff2}
+#status{font-size:12px;color:#9db5c1;margin-top:10px}
+.footer{font-size:11px;color:#6f8794;margin-top:23px}
+@media(max-width:420px){.card{padding:28px 20px}}
+</style>
+</head>
+<body>
+<main class="card">
+  <!-- Thay avatar.jpg bằng ảnh đại diện của bạn -->
+  <img class="avatar" src="avatar.jpg" alt="Ảnh đại diện"
+       onerror="this.style.display='none'">
+  <h1>THANH TUYỀN</h1>
+  <p class="tagline">✨ Welcome to my personal space ✨</p>
+  <div class="line"></div>
+
+  <ul class="details">
+    <li>👤 Họ tên: <strong>Thanh Tuyền</strong></li>
+    <li>📍 Địa điểm: <strong>Việt Nam</strong></li>
+    <li>🎧 Sở thích: <strong>Âm nhạc & khám phá</strong></li>
+  </ul>
+
+  <div class="social">
+    <a href="https://www.facebook.com/share/1A2R57V5Qe/?mibextid=wwXIfr" target="_blank" rel="noopener">Facebook</a>
+    <a href="https://www.tiktok.com/@thahtuynpupu" target="_blank" rel="noopener">TikTok</a>
+  </div>
+
+  <div class="line"></div>
+  <section class="music">
+    <p class="music-title">🎵 MUSIC PLAYER</p>
+    <div class="controls">
+      <button class="play" id="playBtn" type="button">▶ Phát nhạc</button>
+      <label for="volume" aria-label="Âm lượng">🔊</label>
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="0.75">
+    </div>
+    <p id="status">Nhấn “Phát nhạc” để nghe</p>
+    <audio id="music" src="music.mp3" preload="metadata" loop></audio>
+  </section>
+
+  <p class="footer">© 2026 THANH TUYỀN · PERSONAL PROFILE</p>
+</main>
+<script>
+const audio = document.getElementById('music');
+const btn = document.getElementById('playBtn');
+const statusText = document.getElementById('status');
+const volume = document.getElementById('volume');
+audio.volume = Number(volume.value);
+
+btn.addEventListener('click', async () => {
+  if (audio.paused) {
+    try {
+      await audio.play();
+      btn.textContent = '❚❚ Tạm dừng';
+      statusText.textContent = '♪ Đang phát nhạc';
+    } catch (e) {
+      statusText.textContent = 'Không phát được nhạc. Hãy kiểm tra file music.mp3.';
+    }
+  } else {
+    audio.pause();
+    btn.textContent = '▶ Phát nhạc';
+    statusText.textContent = 'Đã tạm dừng';
+  }
+});
+audio.addEventListener('ended', () => {
+  btn.textContent = '▶ Phát nhạc';
+});
+volume.addEventListener('input', () => {
+  audio.volume = Number(volume.value);
+});
+audio.addEventListener('error', () => {
+  statusText.textContent = 'Không tìm thấy music.mp3 trong cùng thư mục.';
+});
+</script>
+</body>
+</html>'''
+
+(base / "index.html").write_text(html, encoding="utf-8")
+audio_src = Path("/mnt/data/snaptik.vn_7684630056303480072.mp3")
+audio_dest = base / "music.mp3"
+import shutil
+shutil.copy2(audio_src, audio_dest)
+
+zip_path = Path("/mnt/data/Thanh_Tuyen_Profile_co_nhac.zip")
+with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
+    z.write(base / "index.html", "index.html")
+    z.write(audio_dest, "music.mp3")
+
+print(f"Đã tạo gói profile: {zip_path}")
+print(f"Kích thước file nhạc: {audio_dest.stat().st_size / (1024*1024):.1f} MB")
